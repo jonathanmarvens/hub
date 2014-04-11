@@ -6,36 +6,35 @@ import (
 	"testing"
 
 	"github.com/bmizerany/assert"
+	"github.com/github/hub/fixtures"
 )
 
 func TestConfigs_loadFrom(t *testing.T) {
-	file, _ := ioutil.TempFile("", "test-gh-config-")
-	defer os.RemoveAll(file.Name())
-
-	content := `[[hosts]]
-  host = "https://github.com"
-  user = "jingweno"
-  access_token = "123"
-  protocol = "https"`
-	ioutil.WriteFile(file.Name(), []byte(content), os.ModePerm)
+	testConfigs := fixtures.SetupTestConfigs()
+	defer testConfigs.TearDown()
 
 	cc := &Configs{}
-	err := loadFrom(file.Name(), cc)
+	err := loadFrom(testConfigs.Path, cc)
 	assert.Equal(t, nil, err)
 
 	assert.Equal(t, 1, len(cc.Hosts))
 	host := cc.Hosts[0]
-	assert.Equal(t, "https://github.com", host.Host)
+	assert.Equal(t, "github.com", host.Host)
 	assert.Equal(t, "jingweno", host.User)
 	assert.Equal(t, "123", host.AccessToken)
-	assert.Equal(t, "https", host.Protocol)
+	assert.Equal(t, "http", host.Protocol)
 }
 
 func TestConfigs_saveTo(t *testing.T) {
 	file, _ := ioutil.TempFile("", "test-gh-config-")
 	defer os.RemoveAll(file.Name())
 
-	host := Host{Host: "https://github.com", User: "jingweno", AccessToken: "123", Protocol: "https"}
+	host := Host{
+		Host:        "github.com",
+		User:        "jingweno",
+		AccessToken: "123",
+		Protocol:    "https",
+	}
 	c := Configs{Hosts: []Host{host}}
 
 	err := saveTo(file.Name(), &c)
@@ -43,7 +42,7 @@ func TestConfigs_saveTo(t *testing.T) {
 
 	b, _ := ioutil.ReadFile(file.Name())
 	content := `[[hosts]]
-  host = "https://github.com"
+  host = "github.com"
   user = "jingweno"
   access_token = "123"
   protocol = "https"`
