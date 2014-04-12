@@ -43,11 +43,6 @@ Feature: hub pull-request
     When I successfully run `hub pull-request -m ăéñøü`
     Then the output should contain exactly "the://url\n"
 
-  Scenario: Deprecated title argument can't start with a dash
-    When I run `hub pull-request -help`
-    Then the stderr should contain "invalid argument: -help\n"
-    And the exit status should be 1
-
   Scenario: Non-existing base
     Given the GitHub API server:
       """
